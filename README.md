@@ -30,7 +30,7 @@ In case you can't run this program or maybe you want to check the feature ASAP p
 \DEMO to view all pictures about features and the game.
 
 ## Source
-    https://github.com/PhamPhuVien/SpaceShooter.git
+    https://github.com/PhamPhuVien/SpaceShooter
 
 ## Contact
 
