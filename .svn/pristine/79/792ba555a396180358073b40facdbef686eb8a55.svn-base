@@ -1,0 +1,310 @@
+////////////////////////////////////////////////////////////////
+// State In Game.
+////////////////////////////////////////////////////////////////
+
+var StateInGame = new Phaser.Class({
+    Extends: Phaser.Scene,
+
+    initialize:
+
+        function StateInGame() {
+            Phaser.Scene.call(this, { key: 'stateInGame' });
+        },
+
+    preload: function () {
+        console.log('Init StateInGame');
+
+        // Load Image.
+        this.load.image('iBG_Space', 'assets/BG_SpaceInGame.png');
+        this.load.image('iPlatformGrass', 'assets/platformGrass.png');
+        this.load.image('iStar', 'assets/star.png');
+        this.load.image('iBomb', 'assets/bomb.png');
+        this.load.image('iButtonSubmit', 'assets/buttonSubmit.png');
+        this.load.image('iButtonPlay', 'assets/buttonPlay.png');
+        this.load.image('iPopupBG', 'assets/Popup_BG.png');
+
+        this.load.spritesheet('iPlayer', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+
+        // Load Sound.
+        this.load.audio('sButtonOrJump', 'assets/Sound/soundButton.mp3');
+        this.load.audio('sEatStar', 'assets/Sound/soundEatStar.mp3');
+        this.load.audio('sExplosion', 'assets/Sound/soundExplosion.mp3');
+    },
+
+    create: function () {
+        // Variables.
+        movePlatformX = 0;
+        movePlatformCount = 0;
+        movePlatformRight = true;
+
+        colorStar = 0x00ffff;
+
+        score = 0;
+
+        // Add Sound.
+        this.sfxEatStar = this.sound.add('sEatStar');
+        this.sfxExplosion = this.sound.add('sExplosion');
+        this.sfxButtonOrJump = this.sound.add('sButtonOrJump');
+
+        // Draw Background.
+        this.add.image(400, 300, 'iBG_Space');
+
+        // Create A New Static Physics Group.
+        // Arcade Physics System Uses Two Types Of Physics Body: Dynamic And Static.
+        platforms = this.physics.add.staticGroup();
+
+        // Platform Add Physic.
+        platforms.create(160, 595, 'iPlatformGrass').setScale(2).refreshBody();     // Bottom Left.
+        platforms.create(420, 595, 'iPlatformGrass').setScale(2).refreshBody();     // Bottom Mid.
+        platforms.create(700, 595, 'iPlatformGrass').setScale(2).refreshBody();     // Bottom Right.
+        platforms.create(50, 250, 'iPlatformGrass');        // Left + 1.
+        platforms.create(300, 300, 'iPlatformGrass');       // Left + 2.
+        platforms.create(570, 400, 'iPlatformGrass');       // Left + 3.
+        platforms.create(750, 220, 'iPlatformGrass');       // Left + 4.
+
+        // Create Player.
+        player = this.physics.add.sprite(100, 450, 'iPlayer');
+
+        player.setBounce(0.2);
+        player.setCollideWorldBounds(true);
+
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('iPlayer', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'turn',
+            frames: [{ key: 'iPlayer', frame: 4 }],
+            frameRate: 20
+        });
+
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('iPlayer', { start: 5, end: 8 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        // Create Cursor.
+        cursors = this.input.keyboard.createCursorKeys();
+
+        // Add Stars.
+        stars = this.physics.add.group({
+            key: 'iStar',
+            repeat: 11,
+            setXY: { x: 12, y: 0, stepX: 70 }
+        });
+
+        stars.children.iterate(function (child) {
+            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+        });
+
+        // Add Bombs.
+        bombs = this.physics.add.group();
+
+        // Add Collider Between Player And Platforms.
+        this.physics.add.collider(player, platforms);
+        this.physics.add.collider(stars, platforms);
+        this.physics.add.overlap(player, stars, this.CollectStar, null, this);
+        this.physics.add.collider(bombs, platforms);
+        this.physics.add.collider(player, bombs, this.HitBomb, null, this);
+
+        // Add Text Score.
+        scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '32px', fill: '#0ff' });
+
+        //// POPUP.
+        // Add Popup Background.
+        this.popupBG = this.add.image(this.sys.game.canvas.width / 2, 200, 'iPopupBG');
+        this.popupBG.setScale(0.6);
+
+        // Add Button Play Game.
+        buttonGameRestart = this.add.sprite(0, 230, 'iButtonPlay').setInteractive();
+        buttonGameRestart.setScale(0.23);
+        buttonGameRestart.x = 310;
+        buttonGameRestart.y = 380;
+
+        buttonGameRestart.on('pointerover', function (event) {
+            buttonGameRestart.setScale(0.25);
+        });
+
+        buttonGameRestart.on('pointerout', function (event) {
+            buttonGameRestart.setScale(0.23);
+        });
+
+        buttonGameRestart.on('pointerdown', (pointer, targets) => {
+            this.input.addUpCallback(() => {
+                this.scene.restart();
+            }, true)
+        });
+
+        // Add Button Submit Score.
+        buttonSubmitScore = this.add.sprite(0, 300, 'iButtonSubmit').setInteractive();
+        buttonSubmitScore.setScale(0.23);
+        buttonSubmitScore.x = 485;
+        buttonSubmitScore.y = 380;
+
+        buttonSubmitScore.on('pointerover', function (event) {
+            buttonSubmitScore.setScale(0.25);
+        });
+
+        buttonSubmitScore.on('pointerout', function (event) {
+            buttonSubmitScore.setScale(0.23);
+        });
+
+        buttonSubmitScore.on('pointerdown', this.ActionOnClickSubmitButton);
+
+        // Text Score.
+        this.textScorePopup = this.add.text(310, 260, '200', {fontSize: '32px', fill: '#555'});
+
+        // Text High Score.
+        this.textHighScorePopup = this.add.text(435, 260, '300', {fontSize: '32px', fill: '#0ff'});
+
+        // Hide Popup Game Over.
+        this.ShowPopup(true);
+    },
+
+    update: function () {
+        // Keyboard Event.
+        if (cursors.left.isDown) {
+            player.setVelocityX(-160);
+            player.anims.play('left', true);
+        }
+        else if (cursors.right.isDown) {
+            player.setVelocityX(160);
+            player.anims.play('right', true);
+        }
+        else {
+            player.setVelocityX(0);
+            player.anims.play('turn');
+        }
+
+        if (cursors.up.isDown && player.body.touching.down) {
+            this.sfxButtonOrJump.play();
+
+            player.setVelocityY(1700);
+        }
+
+        // Platform: Effect Move.
+        platforms.children.iterate(function (child) {
+            // Avoid Check Platforms At Bottom.        
+            if (child.y < 500) {
+                child.x += movePlatformX;
+            }
+        });
+
+        movePlatformCount++;
+
+        if (movePlatformRight) {
+            if (movePlatformCount > 30) {
+                movePlatformRight = false;
+                movePlatformX = -0.2;
+                movePlatformCount = 0;
+            }
+        }
+        else if (!movePlatformRight) {
+            if (movePlatformCount > 30) {
+                movePlatformRight = true;
+                movePlatformX = 0.2;
+                movePlatformCount = 0;
+            }
+        }
+
+        // Star: Effect Rotate.
+        if (movePlatformCount == 20) {
+            colorStar = Phaser.Math.Between(0xff00f0, 0xffff00);
+        }
+
+        stars.children.iterate(function (child) {
+            child.angle += 1;
+            child.tint = colorStar;
+        });
+    },
+
+    CollectStar: function (player, star) {
+        // Play Sound.
+        this.sfxEatStar.play();
+
+        // Hide Star.
+        star.disableBody(true, true);
+
+        // Calculate Score.
+        score += 10;
+        scoreText.setText('Score: ' + score);
+
+        if (stars.countActive(true) === 0) {
+            stars.children.iterate(function (child) {
+                child.enableBody(true, child.x, 0, true, true);
+            });
+
+            var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+
+            var bomb = bombs.create(x, 16, 'iBomb');
+
+            bomb.setBounce(1);
+            bomb.setCollideWorldBounds(true);
+            bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+        }
+    },
+
+    HitBomb: function () {
+        // Play Sound.
+        this.sfxExplosion.play();
+
+        // Set Player's Color Into Red.
+        this.physics.pause();
+
+        player.setTint(0xff0000);
+        player.anims.play('turn');
+
+        // Hide Score Text.
+        scoreText.visible = false;
+
+        // Hide Bomb.
+        bombs.children.iterate(function (child){
+            child.visible = false;
+        });
+
+        // Show Popup Game Over.
+        this.ShowPopup(true);
+
+        // Hide Other Elements.
+        platforms.children.iterate(function (child) {
+            child.visible = false;
+        });
+    },
+
+    ActionOnClickSubmitButton: function () {
+        // Can't Call Anything In This Function???
+        //this.sfxButton.play();
+        console.log('ActionOnClickSubmitButton');
+
+        var emailText = 'test3@test.com';
+
+        var dataSubmit = {
+            name: 'PVien',
+            score: score
+        };
+
+        // Emit SubmitScore.
+        SocketGB.emit('SubmitScore', JSON.stringify(dataSubmit));
+        //SocketGB.emit('SubmitScore', '{"email":"test3@test.com","score":170}');
+    },
+
+    ShowPopup: function(isShowPopup){
+        this.popupBG.visible = isShowPopup;
+
+        // Set Text Score.
+        this.textScorePopup.setText(score);
+        this.textScorePopup.visible = isShowPopup;
+
+        // Set Text High Score From Server.
+        this.textHighScorePopup.visible = isShowPopup;
+
+        // Buttons In Popup.
+        buttonGameRestart.visible = isShowPopup;
+        buttonSubmitScore.visible = isShowPopup;
+    }
+});

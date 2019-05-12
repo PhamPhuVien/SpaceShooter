@@ -1,0 +1,45 @@
+const express = require('express');
+const router = express.Router();
+const UserModel = require('../models/userModel');
+const asyncMiddleware = require('../middleware/asyncMiddleware');
+
+// Run Game.
+router.get('/', (req, res, next) => {
+    res.sendFile('/index.html');
+})
+
+// Check Connection Status.
+router.get('/status', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'ok PV Status' });
+});
+
+// Login.
+router.post('/login', asyncMiddleware(async (req, res, next) => {
+    console.log('Router Login: ' + JSON.stringify(req.body));
+
+    const { email, name, score } = req.body;
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+        console.log('Login FAILED So Create New Player By Mail.');
+        await UserModel.create({ email, name, score });
+    }
+
+    // Response.
+    res.status(200).json({ 'status': 'Login Ok Or Create Player' });
+}));
+
+// Logout.
+router.post('/logout', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'ok' });
+});
+
+// Token.
+router.post('/token', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'Token OK' });
+});
+
+module.exports = router;

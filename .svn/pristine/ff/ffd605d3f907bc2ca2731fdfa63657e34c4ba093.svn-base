@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Game Space Shooter</title>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="javascript/phaser.min.js"></script>
+        <script src="javascript/gameStateInGame.js"></script>
+        <script src="javascript/gameStateLogo.js"></script>
+        <script src="javascript/gameMain.js"></script>
+    </head>
+
+    <body>
+        <h1>Pham Phu Vien</h1>
+        <div id='gameDiv'></div>
+    </body>    
+</html>

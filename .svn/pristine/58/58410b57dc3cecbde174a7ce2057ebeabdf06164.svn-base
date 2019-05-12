@@ -1,0 +1,57 @@
+- EX Game With Phaser: https://github.com/Jerenaux/basic-mmo-phaser
+- Sound Website: https://soundimage.org
+- Pass MongoDB: duyanbede?1*
+	+ https://cloud.mongodb.com/v2/5cd66a78c56c98c292c3ce4f#clusters/security/users
+	+ User: admin Pass: admin
+	+ 
+		const MongoClient = require('mongodb').MongoClient;
+		const uri = "mongodb+srv://admin:<password>@cluster0-z6bg3.mongodb.net/test?retryWrites=true";
+		const client = new MongoClient(uri, { useNewUrlParser: true });
+		client.connect(err => {
+  			const collection = client.db("test").collection("devices");
+  			// perform actions on the collection object
+  			client.close();
+		});
+
+	+ mongodb+srv://admin:<password>@cluster0-z6bg3.mongodb.net/test?retryWrites=true
+
+- we will need to store the following fields:
+
+    email – the user’s email address they provide when they sign up
+    password – the hashed password the user provides when they sign up
+    name – the name the user provides when they sign up
+    highScore – the highest score the user has ever achieved, this value will be 0 by default.
+
+- Post HTTP With CURL: On Win10 Has To Replace ' with ". And Use Double " Such as ""password"" Or Replace With \"
+	curl -X POST http://localhost:5000/signup -H "Content-Type: application/json" -d "{""email"": ""test4@test.com"", ""password"": ""1234"", ""name"": ""test4""}"
+    or
+	curl -X POST http://localhost:5000/signup -H "Content-Type: application/json" -d "{\"email\": \"test4@test.com\", \"password\": \"1234\", \"name\": \"test4\"}"
+
+	+ curl -X POST http://localhost:5000/signup -H "Content-Type: application/json" -d "{\"email\": \"test4@test.com\", \"password\": \"1234\", \"name\": \"test4\"}"
+	+ curl -X POST http://localhost:5000/login -H "Content-Type: application/json" -d "{\"email\": \"test4@test.com\", \"password\": \"1234\"}"
+	+ curl -X POST http://localhost:5000/submitScore -H "Content-Type: application/json" -d "{\"email\": \"test4@test.com\", \"score\": \"100\"}"
+
+- var json = '{"result":true, "count":42}';
+  var json = '{"email": "test3@test.com", "score": 120}';
+
+- Goi ve 1 trang nhap info dang HTML => Sau khi nhan Submit Button Thi tra ve lai thong tin: http://www.codeexpertz.com/blog/nodejs/nodejs-creating-html-form-post-method
+
+- ERROR voi Mongo: MongoError: E11000 duplicate key error collection: test.users index: email_1 dup key: { : null }
+	=> The problem here is that I am not adding _id from my code. Mongo is auto-generating it. I do not know how/why it is generating duplicate ids.
+	=> Yes it a mongoose specific error. I have faced that while working .
+
+
+- Submit Score:
+        //console.log('SubmiteScore Data 2: ' + JSON.stringify({email: 'test3@test.com', score: 120}));
+
+        //req.write('{"email":"test3@test.com","score":140}');
+
+        // req.write(JSON.stringify({
+        //     email: 'test3@test.com',
+        //     score: 120
+        // }));
+
+	SocketGB.emit('SubmitScore', JSON.stringify(dataSubmit));
+        //SocketGB.emit('SubmitScore', '{"email":"test3@test.com","score":170}');
+
+

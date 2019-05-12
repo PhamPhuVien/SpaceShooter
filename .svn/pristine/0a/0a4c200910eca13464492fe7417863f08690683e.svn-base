@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>Space Dude</title>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+	<script src="//cdn.jsdelivr.net/npm/phaser@3.16.2/dist/phaser.js"></script>
+	<script src="//cdn.jsdelivr.net/npm/phaser@3.16.2/dist/phaser.min.js"></script>
+	<script src="//cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+
+	<script src="javascript/gameStateInGame.js"></script>
+	<script src="javascript/gameStateLogo.js"></script>
+	<script src="javascript/gameMain.js"></script>
+	<script src="javascript/gameFunctions.js"></script>
+
+	<style>
+		input[type=text],
+		input[type=button],
+		input[type=password] {
+			padding: 8px 10px;
+			margin: 10px 0px;
+			display: inline-block;
+			border: 1px solix #ccc;
+			box-sizing: border-box;
+			width: 200px;
+		}
+
+		.imgcontainer {
+			text-align: left;
+			margin: 24px 0 12px 20px;
+			position: relative;
+		}
+
+		img.avatar {
+			width: 150px;
+			border-radius: 50%;
+		}
+
+		.container {
+			padding: 0 0 0 0
+		}
+	</style>
+</head>
+
+<body>
+	<div id='userLoginDiv'>
+		<form>
+			<div class="imgcontainer">
+				<img src="./assets/loginAvatar.png" alt="Avatar" class="avatar">
+			</div>
+			<div>
+				<input type="text" placeholder="Enter Email To Login" id="inputMailID" name="uMail" required>
+			</div>
+			<div class='container'>
+				<input type="button" onclick="javascript:LoginFunction();" value="Login"></input>
+			</div>
+		</form>
+	</div>
+
+	<div id='userNameDiv'>
+		<div>
+			<label id="labelUserName"><b><i>Input New Name</i></b></label>
+		</div>
+
+		<input type="text" placeholder="Enter Username" id="inputNameID" name="userName" required>
+		<input type="button" onclick="javascript:SubmitNameFunction(this);" value="Submit" id="submitNameButtonID"></input>
+	</div>
+
+	<script type="text/javascript">
+		//// Init Socket.IO Here.
+		var SocketGB = io();
+
+		//// Player Info.
+		var PlayerMailGB = '';
+		var PlayerNameGB = 'New Player';
+		var PlayerScoreGB = 0;
+
+		document.getElementById("userNameDiv").style.display = "none"; 
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+////////////////////////////////////////////////////////////////
+// This Code Runs In User's Browser.
+////////////////////////////////////////////////////////////////
+
+var gameConfig = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            debug: false,
+            gravity: { y: 300 }
+        }
+    },
+    scene: {
+        StateLogo,
+        StateInGame
+    }
+};
+
+// Init Phaser.
+var game = new Phaser.Game(gameConfig);
+
+// Add States In Game.
+game.scene.add('stateLogo', StateLogo);
+game.scene.add('stateIngame', StateInGame);
+
+// Start First State.
+game.scene.start('statelogo');

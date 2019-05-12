@@ -1,0 +1,75 @@
+const express = require('express');
+const asyncMiddleware = require('../middleware/asyncMiddleware');
+const UserModel = require('../models/userModel');
+const routerSecure = express.Router();
+
+// Change Player Name.
+routerSecure.post('/changePlayerName', asyncMiddleware(async (req, res, next) => {
+    console.log('ROUTE: Change Player Name: ' + JSON.stringify(req.body));
+
+    // Update Base On Email.
+    await UserModel.updateOne({ email: req.body.email }, { $set: { name: req.body.name } });
+
+    // Response.
+    res.status(200).json({ 'status': 'Change Player Name OK' });
+}));
+
+// Submit Score.
+routerSecure.post('/submitScore', asyncMiddleware(async (req, res, next) => {
+    console.log('ROUTE: Submit Score: ' + JSON.stringify(req.body));
+
+    // Update Base On Email.
+    await UserModel.updateOne({ email: req.body.email }, { $set: { highScore: req.body.score } });
+
+    // Response.
+    res.status(200).json({ 'status': 'Submit Score OK' });
+}));
+
+// Get Scores.
+routerSecure.get('/scores', asyncMiddleware(async (req, res, next) => {
+    console.log('ROUTE: Get Scores: ' + JSON.stringify(req.body));
+
+    // Find ALL. Can't Process With JSON.
+    const users = await UserModel.find({}, 'email name highScore -_id').sort({ highScore: -1 }).limit(10);
+
+    // Response.
+    res.status(200).json(users);
+}));
+
+// Post Increase Times User Updated.
+routerSecure.post('/timesUserUpdated', asyncMiddleware(async (req, res, next) => {
+    console.log('ROUTE: Times User Updated: ' + JSON.stringify(req.body));
+
+    // Find One. Ok Process With JSON.
+    const userInfo = await UserModel.findOne({ email: req.body.email }, function (error, result) {
+        console.log('ROUTE: Times User Updated: Name ' + result.name);
+        console.log('ROUTE: Times User Updated: Times Updated: ' + result.timesUpdated);
+    });
+
+    console.log('ROUTE: Times User Updated: timesUpdated');
+    var timesUpdatedNew = userInfo.timesUpdated + 1;
+    await UserModel.updateOne({ email: req.body.email }, { $set: { timesUpdated: timesUpdatedNew } });
+
+    // Response.
+    res.status(200);
+}))
+
+// Post Delete User.
+routerSecure.post('/deleteUser', asyncMiddleware(async (req, res, next) => {
+    console.log('ROUTE: Delete User Info: ' + JSON.stringify(req.body));
+
+    await UserModel.deleteOne({ email: req.body.email }, function (error, result) {
+        if (error) {
+            console.log('Delete User: Error');
+        }
+        else {
+            console.log('Delete User: ' + req.body.email + ' Ok.');
+        }
+    });
+    //const userInfo = await UserModel.find({email: req.body.email}).pretty();
+
+    // Response.
+    res.status(200);
+}))
+
+module.exports = routerSecure;

@@ -1,0 +1,37 @@
+const express = require('express');
+const asyncMiddleware = require('../middleware/asyncMiddleware');
+const UserModel = require('../models/userModel');
+const routerSecure = express.Router();
+
+// Change Player Name.
+routerSecure.post('/changePlayerName', asyncMiddleware(async (req, res, next) => {
+    console.log('ROUTE: Change Player Name: ' + JSON.stringify(req.body));
+
+    await UserModel.updateOne({ email: req.body.email }, { $set: { name: req.body.name } }, { score: req.body.score });
+
+    // Response.
+    res.status(200).json({ 'status': 'Change Player Name OK' });
+}));
+
+// Submit Score.
+routerSecure.post('/submitScore', asyncMiddleware(async (req, res, next) => {
+    console.log('ROUTE: Submit Score: ' + JSON.stringify(req.body));
+
+    // Can't Update.
+    //await UserModel.updateOne({ email: req.body.email }, { name: req.body.name }, { $set: { highScore: req.body.score }});
+    //await UserModel.updateOne({ name: req.body.name }, { $set: { highScore: req.body.score }});   // OK.
+    await UserModel.updateOne({ email: req.body.email }, { $set: { highScore: req.body.score }});   // OK.
+
+    // Response.
+    res.status(200).json({ 'status': 'Submit Score OK' });
+}));
+
+// Get Scores.
+routerSecure.get('/scores', asyncMiddleware(async (req, res, next) => {
+    const users = await UserModel.find({}, 'name highScore -_id').sort({ highScore: -1 }).limit(10);
+
+    // Response.
+    res.status(200).json(users);
+}));
+
+module.exports = routerSecure;

@@ -1,0 +1,8 @@
+@echo OFF
+
+color A
+cls
+
+node server\gameServer.js
+
+pause

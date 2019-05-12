@@ -1,0 +1,27 @@
+const express = require('express');
+const asyncMiddleware = require('../middleware/asyncMiddleware');
+const UserModel = require('../models/userModel');
+const routerSecure = express.Router();
+
+// Submit Score.
+routerSecure.post('/submitScore', asyncMiddleware(async (req, res, next) => {
+    const { email, score } = req.body;
+    
+    console.log('PV Submit Score: ' + JSON.stringify(req.body));
+    await UserModel.updateOne({ email }, { highScore: score });
+
+    // Response.
+    res.status(200);
+    res.json({ 'status': 'Submit OK' });
+}));
+
+// Get Scores.
+routerSecure.get('/scores', asyncMiddleware(async (req, res, next) => {
+    const users = await UserModel.find({}, 'name highScore -_id').sort({ highScore: -1 }).limit(10);
+
+    // Response.
+    res.status(200);
+    res.json(users);
+}));
+
+module.exports = routerSecure;

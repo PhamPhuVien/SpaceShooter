@@ -1,0 +1,11 @@
+// This Function Call By Index.hmtl.
+function submitNameFunction(ref) {
+    console.log('submitNameFunction');
+
+    PlayerNameGB = document.getElementById('inputNameID').value;
+
+    if (PlayerNameGB != "") {
+        ref.value = "Update";
+        document.getElementById('labelUserName').innerHTML = '<i>Hello</i> <b>' + PlayerNameGB + '</b><i>. If Needed Please Press \"Update\" To Change Your Name!</i>';
+    }
+}

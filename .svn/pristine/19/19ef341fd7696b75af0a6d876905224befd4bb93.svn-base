@@ -1,0 +1,25 @@
+var express = require('express');
+var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io').listen(server);
+
+//// APP. express.static: Work With Static Such As Image, CSS, JS.
+app.use(express.static(__dirname + '/../public'));
+
+app.get('/', function(request, response){
+    // Send File To User.
+    response.sendFile(__dirname + '/index.html');
+});
+
+//// Server Listen.
+server.listen(5000, function(){
+    console.log('\nServer Is Listening On Port: ' + server.address().port);
+    console.log('=================================');
+});
+
+//// Check Connection.
+io.on('connection', function(socket){
+    socket.on('newPlayer', function(){
+        
+    });
+});

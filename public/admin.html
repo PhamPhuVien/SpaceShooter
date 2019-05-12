@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>Space Admin</title>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<style>
+		input[type=text],
+		input[type=button],
+		input[type=password] {
+			padding: 8px 10px;
+			margin: 10px 0px;
+			display: inline-block;
+			border: 1px solix #ccc;
+			box-sizing: border-box;
+			width: 200px;
+		}
+
+		.containerText {
+			padding: 0 0 0 50px;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- Delete User By Email. -->
+	<div id=removePlayerDiv>
+		<div>
+			<label id='labelDeletePlayer'><b>* Delete User</b></label>
+		</div>
+		<div>
+			<input type="text" placeholder="Enter Email To Delete" id="inputEmailDeleteID" name="uMail" required>
+		</div>
+		<div class='container'>
+			<input type="button" onclick="javascript:DeleteUserFunction();" value="Delete User"></input>
+		</div>
+	</div>
+
+	<br>
+
+	<!-- Get Number Update Score Of User By Email. -->
+	<div id=countUpdateScorePlayerDiv>
+		<div>
+			<label id='labelGetTimesUserUpdatedScore'><b>* Get Times A User Updated Score => (N/a) Times</b></label>
+		</div>
+		<div>
+			<input type="text" placeholder="Enter Email To Get" id="inputEmailGetTimesID" name="uMail" required>
+		</div>
+		<div class='container'>
+			<input type="button" onclick="javascript:GetTimesUserUpdatedFunction();" value="Get Times"></input>
+		</div>
+	</div>
+
+	<br>
+
+	<!-- Get Update Score Of All Users. -->
+	<div id=updatedScoreAllUsersDiv>
+		<div>
+			<label id='labelUpdatedScoreAllUsers'><b>* Get Update Score Of All Users:</b></label>
+		</div>
+
+		<div class='containerText'>
+			<label id='labelUpdatedScoreAllUsersInfo'><b></b></label>
+		</div>
+	</div>
+
+	<script>
+		// Delete User By Email.
+		function DeleteUserFunction() {
+			var userEmail = document.getElementById("inputEmailDeleteID").value;
+
+			console.log('Delete User Mail: ' + userEmail);
+
+			const urlID = 'http://localhost:5000/deleteUser';
+
+			// Use This Var And JSON.stringify() To Avoid "Unexpected Token .. In Json At Position".
+			var dataSubmit = {
+				email: userEmail,
+				name: 'NoNeed',
+				score: 0
+			};
+
+			$.ajax({
+				url: urlID,
+				type: 'POST',
+				data: JSON.stringify(dataSubmit),
+				contentType: "application/json",
+				dataType: "json",
+				complete: function () {
+					console.log('Delete User Complete.');
+				},
+				success: function (data) {
+					console.log('Delete User Success.');
+					console.log(data);
+
+					document.getElementById('labelDeletePlayer').innerHTML = '<b>* Delete User => <i>Thanos done his job with this user</i></b>';
+				},
+				error: function (error) {
+					console.log('Delete User Error.');
+				}
+			});
+		}
+
+		// Get Number Update Score Of User By Email.
+		function GetTimesUserUpdatedFunction() {
+			var userEmail = document.getElementById("inputEmailGetTimesID").value;
+
+			console.log('Get Number Update Score User Mail: ' + userEmail);
+
+			const urlID = 'http://localhost:5000/getTimesUserUpdated';
+
+			// Use This Var And JSON.stringify() To Avoid "Unexpected Token .. In Json At Position".
+			var dataSubmit = {
+				email: userEmail,
+				name: 'NoNeed',
+				score: 0
+			};
+
+			$.ajax({
+				url: urlID,
+				type: 'POST',
+				data: JSON.stringify(dataSubmit),
+				contentType: "application/json",
+				dataType: "json",
+				complete: function () {
+					console.log('Get Number Update Score User Complete.');
+				},
+				success: function (data) {
+					console.log('Get Number Update Score User Success.');
+					const obj = JSON.stringify(data);
+					const obj2 = JSON.parse(obj);
+
+					document.getElementById('labelGetTimesUserUpdatedScore').innerHTML = '<b>* Get Times A User Updated Score: ' + obj2.updateTimes + ' <i>times</i></b>';
+				},
+				error: function (error) {
+					console.log('Get Number Update Score User Error.');
+				}
+			}).done(function (response) {
+				console.log('DONE' + response);
+			});
+		}
+
+		//// Init Socket.IO Here.
+		var SocketAGB = io.connect('http://localhost:5000/');
+
+		SocketAGB.on('aPlayerUpdatedTheirScore', function (data) {
+			console.log('Emit TEST IN ADDMIN aPlayerUpdatedTheirScore Event From Server.');
+			console.log('With Data: ' + data);
+
+			var today = new Date();
+			var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+			var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+			var dateTime = date + ' ' + time;
+
+			document.getElementById('labelUpdatedScoreAllUsersInfo').innerHTML += '<br><i>' + dateTime + ' Update By:</i> ' + data;
+		});
+	</script>
+</body>
+
+</html>

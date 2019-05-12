@@ -1,0 +1,47 @@
+// This Function Call By Index.hmtl.
+function SubmitNameFunction(ref) {
+    console.log('SubmitNameFunction');
+
+    PlayerNameGB = document.getElementById('inputNameID').value;
+
+    if (PlayerNameGB != '') {
+        // Update HTML.
+        ref.value = "Update";
+        document.getElementById('labelUserName').innerHTML = '<i>Hello</i> <b>' + PlayerNameGB + '</b><i>. If Needed Please Press \"Update\" To Change Your Name!</i>';
+
+        // Update Player Name.
+        var dataSubmit = {
+            name: PlayerNameGB,
+            score: PlayerScoreGB
+        };
+
+        console.log('Emit Change Player Name');
+
+        // Emit SubmitScore.
+        SocketGB.emit('ChangePlayerName', JSON.stringify(dataSubmit));
+    }
+}
+
+function LoginFunction(){
+    console.log('LoginFunction');
+
+    // Login If Not Exist Create New Player.
+    PlayerMailGB = document.getElementById('inputMailID').value;
+
+    var dataSubmit = {
+        email: PlayerMailGB,
+        name: PlayerNameGB,
+        score: PlayerScoreGB
+    };
+
+    if(PlayerMailGB != ''){
+        SocketGB.emit('PlayerLogin', JSON.stringify(dataSubmit));
+    }
+
+    // Hide And Show Change Name Div.
+    document.getElementById("userLoginDiv").style.display = "none";
+    document.getElementById("userNameDiv").style.display = "contents";
+
+    // Start Game.
+    StartGame();
+}

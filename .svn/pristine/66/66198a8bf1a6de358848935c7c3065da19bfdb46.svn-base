@@ -1,0 +1,16 @@
+- EX Game With Phaser: https://github.com/Jerenaux/basic-mmo-phaser
+- Sound Website: https://soundimage.org
+- Pass MongoDB: duyanbede?1*
+	+ https://cloud.mongodb.com/v2/5cd66a78c56c98c292c3ce4f#clusters/security/users
+	+ User: admin Pass: admin
+	+ 
+		const MongoClient = require('mongodb').MongoClient;
+		const uri = "mongodb+srv://admin:<password>@cluster0-z6bg3.mongodb.net/test?retryWrites=true";
+		const client = new MongoClient(uri, { useNewUrlParser: true });
+		client.connect(err => {
+  			const collection = client.db("test").collection("devices");
+  			// perform actions on the collection object
+  			client.close();
+		});
+
+	+ mongodb+srv://admin:<password>@cluster0-z6bg3.mongodb.net/test?retryWrites=true

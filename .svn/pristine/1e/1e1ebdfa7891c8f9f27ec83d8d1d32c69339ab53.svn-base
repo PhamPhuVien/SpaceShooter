@@ -1,0 +1,16 @@
+const express = require('express');
+const routerSecure = express.Router();
+
+// Submit Score.
+routerSecure.post('/submitScore', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'ok' });
+});
+
+// Get Scores.
+routerSecure.get('/scores', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'ok Score' });
+});
+
+module.exports = routerSecure;

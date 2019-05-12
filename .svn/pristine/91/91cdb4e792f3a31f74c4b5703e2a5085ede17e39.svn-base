@@ -1,0 +1,29 @@
+////////////////////////////////////////////////////////////////
+// This Code Runs In User's Browser.
+////////////////////////////////////////////////////////////////
+
+// https://rexrainbow.github.io/phaser3-rex-notes/docs/site/
+
+var gameConfig = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            debug: false,
+            gravity: { y: 200 }
+        }
+    },
+    scene: {
+        StateLogo,
+        StateInGame
+    }
+};
+
+var game = new Phaser.Game(gameConfig);
+
+game.scene.add('stateLogo', StateLogo);
+game.scene.add('stateIngame', StateInGame);
+
+game.scene.start('statelogo');

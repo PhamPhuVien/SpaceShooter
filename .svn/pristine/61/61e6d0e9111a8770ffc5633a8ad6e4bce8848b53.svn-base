@@ -1,0 +1,33 @@
+const mongoose = require('mongoose');
+const schema = mongoose.Schema;
+
+const UserSchema = new schema({
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    highScore: {
+        type: Number,
+        default: 0
+    },
+    timesUpdated: {
+        type: Number,
+        default: 0
+    }
+});
+
+UserSchema.pre('save', async function (next) {
+    console.log('UserModel: Save 1');
+    const user = this;
+
+    next();
+});
+
+const UserModel = mongoose.model('User_DB', UserSchema);
+
+module.exports = UserModel;

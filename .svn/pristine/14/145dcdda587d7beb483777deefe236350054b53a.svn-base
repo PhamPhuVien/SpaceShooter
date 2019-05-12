@@ -1,0 +1,77 @@
+const express = require('express');
+const router = express.Router();
+const UserModel = require('../models/userModel');
+const asyncMiddleware = require('../middleware/asyncMiddleware');
+
+// Run Game.
+router.get('/', (req, res, next) => {
+    res.sendFile('/index.html');
+})
+
+// Check Connection Status.
+router.get('/status', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'ok PV Status' });
+});
+
+router.post('/submitName', asyncMiddleware(async (req, res, next) => {
+    console.log('Submit Name: ' + JSON.stringify(req.body));
+
+    const user = await UserModel.findOne({ name: req.body.userName });
+
+    if (!user) {
+        console.log('Submit Name: Create Method');
+        await UserModel.create({ password: req.body.userName, name: req.body.userName }); // OK With 'name' + 'password'
+    }
+    else {
+        console.log('Submit Name: Update Method');
+        await UserModel.updateOne({ name: req.body.userName });
+    }
+
+    // Response.
+    res.status(200);
+    res.json({ 'status': 'ok PV Status' });
+}))
+
+// Signup.
+router.post('/signup', asyncMiddleware(async (req, res, next) => {
+    const { name, email, password } = req.body;
+
+    console.log('Signup Data: ' + JSON.stringify(req.body));
+
+    //
+
+    // Response.
+    res.status(200);
+    res.json({ 'status': 'Signup OK' });
+}));
+
+// Login.
+router.post('/login', asyncMiddleware(async (req, res, next) => {
+    console.log('Router Login: ' + JSON.stringify(req.body));
+
+    const { email, name, score } = req.body;
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+        console.log('Login FAILED So Create New Player By Mail.');
+        await UserModel.create({ email, name, score });
+    }
+
+    // Response.
+    res.status(200).json({ 'status': 'Login Ok Or Create Player' });
+}));
+
+// Logout.
+router.post('/logout', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'ok' });
+});
+
+// Token.
+router.post('/token', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'Token OK' });
+});
+
+module.exports = router;

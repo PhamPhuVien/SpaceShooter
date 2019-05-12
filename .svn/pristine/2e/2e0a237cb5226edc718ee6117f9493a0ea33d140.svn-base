@@ -1,0 +1,92 @@
+const express = require('express');
+const router = express.Router();
+const UserModel = require('../models/userModel');
+const asyncMiddleware = require('../middleware/asyncMiddleware');
+
+// Run Game.
+router.get('/', (req, res, next) => {
+    res.sendFile('/index.html');
+})
+
+// Check Connection Status.
+router.get('/status', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'ok PV Status' });
+});
+
+router.post('/submitName', asyncMiddleware(async (req, res, next) => {
+    const { uName, name } = JSON.stringify(req.body);
+
+    console.log('Submit Name: ' + JSON.stringify(req.body));
+    console.log('Submit Name: 1 ' + JSON.stringify(req.body.userName));
+    console.log('Submit Name: 2 ' + req.body.userName);
+    console.log('Submit Name: name ' + name);
+    console.log('Submit Name: uName ' + uName);
+
+    //const user = await UserModel.findOne({ uuName });
+
+    //if (!user) {
+        console.log('Submit Name: Create Method');
+        //await UserModel.create({name: 'sdfsdfsd'});    // OK With Only 'name'.
+        //await UserModel.create({password: 'asdfsdf', name: 'adfasdf'}); // OK With 'name' + 'password'
+        await UserModel.create({password: req.body.userName, name: req.body.userName}); // OK With 'name' + 'password'
+    // }
+    // else {
+    //     console.log('Submit Name: Update Method');
+    //     await UserModel.updateOne({ name });
+    // }
+
+    // Response.
+    res.status(200);
+}))
+
+// Signup.
+router.post('/signup', asyncMiddleware(async (req, res, next) => {
+    const { name, email, password } = req.body;
+
+    console.log('Signup Data: ' + JSON.stringify(req.body));
+
+    //await UserModel.create({ email, password, name });
+
+    // Response.
+    res.status(200);
+    res.json({ 'status': 'Signup OK' });
+}));
+
+// Login.
+router.post('/login', asyncMiddleware(async (req, res, next) => {
+    const { email, password } = req.body;
+    // const user = await UserModel.findOne({ email });
+
+    // if (!user) {
+    //     res.status(401).json({ 'message': 'Login Unauthenticated' });
+
+    //     return;
+    // }
+
+    // const isValidatePassword = await user.isValidPassword(password);
+
+    // if (!isValidatePassword) {
+    //     res.status(401).json({ 'message': 'Login Unauthenticated' });
+
+    //     return;
+    // }
+
+    // Response.
+    res.status(200);
+    res.json({ 'status': 'Login OK' });
+}));
+
+// Logout.
+router.post('/logout', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'ok' });
+});
+
+// Token.
+router.post('/token', (req, res, next) => {
+    res.status(200);
+    res.json({ 'status': 'Token OK' });
+});
+
+module.exports = router;

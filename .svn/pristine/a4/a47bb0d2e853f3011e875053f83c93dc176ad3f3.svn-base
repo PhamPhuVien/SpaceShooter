@@ -1,0 +1,42 @@
+const express = require('express');
+const asyncMiddleware = require('../middleware/asyncMiddleware');
+const UserModel = require('../models/userModel');
+const routerSecure = express.Router();
+
+// Change Player Name.
+routerSecure.post('/changePlayerName', asyncMiddleware(async (req, res, next) => {
+
+    console.log('PV Change Player Name 1: ' + req.body.name);
+    console.log('PV Change Player Name 1: ' + req.body.highScore);
+    console.log('PV Change Player Name 1: ' + req.body.score);
+    console.log('PV Change Player Name 2: ' + JSON.stringify(req.body));
+
+    await UserModel.updateOne({ name: req.body.name }, { highScore : 10});
+
+    // Response.
+    res.status(200);
+    res.json({ 'status': 'Submit OK' });
+}));
+
+// Submit Score.
+routerSecure.post('/submitScore', asyncMiddleware(async (req, res, next) => {
+    console.log('PV Submit Score 1: ' + req.body.name);
+    console.log('PV Submit Score 2: ' + req.body.score);
+    console.log('PV Submit Score 3: ' + JSON.stringify(req.body));
+    await UserModel.updateOne({ name: req.body.name}, { highScore: req.body.score });
+
+    // Response.
+    res.status(200);
+    res.json({ 'status': 'Submit OK' });
+}));
+
+// Get Scores.
+routerSecure.get('/scores', asyncMiddleware(async (req, res, next) => {
+    const users = await UserModel.find({}, 'name highScore -_id').sort({ highScore: -1 }).limit(10);
+
+    // Response.
+    res.status(200);
+    res.json(users);
+}));
+
+module.exports = routerSecure;
